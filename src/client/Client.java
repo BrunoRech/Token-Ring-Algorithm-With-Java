@@ -29,6 +29,7 @@ public class Client {
 					out.println(message);
 					System.out.println("Mensagem enviada, aguardando resposta do servidor");
 					String response = in.readLine();
+					linha = null;
 					System.out.println("Server: " + response);
 				}
 			}
@@ -38,7 +39,7 @@ public class Client {
 		} catch (IOException e) {
 			System.out.println("Erro de entrada/saída ao criar socket");
 			e.printStackTrace();
-		} finally {
+		}/* finally {
 			try {// fecha input stream e socket
 				if (in != null) {
 					in.close();
@@ -50,7 +51,7 @@ public class Client {
 				System.out.println("Erro ao fechar input stream ou socket");
 				e.printStackTrace();
 			}
-		}
+		}*/
 	} // fim main()
 
 }

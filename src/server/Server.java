@@ -13,44 +13,31 @@ public class Server {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		int porta = 56000;
 		int counter = 0;
+		int nClients = 2;
 		ServerSocket server = new ServerSocket(porta);
 		server.setReuseAddress(true);
 		PrintWriter out = null;
 		BufferedReader in;
 		Socket conn = null; // socket para comunicar com o cliente
-		LinkedList<PrintWriter> clients = new LinkedList<>();
-		while (true) {
+		LinkedList<ClientNode> clients = new LinkedList<>();
+		int clientCount = 0;
+		while (clientCount < nClients) {
 			try {
 				System.out.println("Aguardando conexao de cliente...");
 				conn = server.accept();
 				out = new PrintWriter(conn.getOutputStream(), true);
 				in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-				clients.add(out);
-
-				System.out.println(
-						"Conexao estabelecida. " + conn.getInetAddress().getHostAddress() + " Enviando dados...");
-				// Criar um PrintWriter para escrever no output do Socket (true = autoflush)
+				ClientNode node = new ClientNode(out, in);
+				clients.add(node);
+				clientCount++;
 				
-					PrintWriter writer = clients.get(counter);
-					counter++;
-					if(counter >= clients.size()) {
-						counter = 0;
-					}
-					writer.println("token");
-			
-				// }
-					
-					
-					try {
-						String message = in.readLine();
-						out.println("Resposta: " + message);
-					} catch (Exception e) {
-						// TODO: handle exception
-					}
+				System.out.println(
+						"Conexao estabelecida." + clientCount + " clientes conectados...");
+				
 			}catch(IOException ex) {
 				ex.printStackTrace();
 				System.out.println("Essa porta já está ocupada");
-			} finally {
+			}/* finally {
 				// fecha conexão e output stream
 				conn.close();
 				if (out != null) {
@@ -58,6 +45,21 @@ public class Server {
 				}
 				System.out.println("Conexao fechada.");
 				// server.close();
+			}*/
+		}
+		while(true) {
+			try {
+			ClientNode client = clients.get(counter);
+			counter++;
+			if(counter >= clients.size()) {
+				counter = 0;
+			}
+			client.write("token");
+			
+				String message = client.read();
+				client.write("Resposta: " + message);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 
