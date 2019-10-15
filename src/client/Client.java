@@ -21,8 +21,8 @@ public class Client {
 			System.out.println("Conectado! Aguardando token");
 			in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			out = new PrintWriter(conn.getOutputStream(), true);
-			String linha = in.readLine(); //resposta do servidor
-			while (linha != null) {
+			while (true) {
+				String linha = in.readLine(); //resposta do servidor
 				if(linha.equalsIgnoreCase("token")) {
 					System.out.println("Execute sua ação");
 					String message = sc.nextLine();
