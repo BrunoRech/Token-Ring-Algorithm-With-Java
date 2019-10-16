@@ -7,13 +7,13 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
-import java.util.ListIterator;
 
 public class Server {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		int porta = 56000;
 		int counter = 0;
 		int nClients = 2;
+		int[] portasDisponiveis = {56001, 56002}; //, 56002, 56003, 56004};
 		ServerSocket server = new ServerSocket(porta);
 		server.setReuseAddress(true);
 		PrintWriter out = null;
@@ -27,7 +27,7 @@ public class Server {
 				conn = server.accept();
 				out = new PrintWriter(conn.getOutputStream(), true);
 				in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-				ClientNode node = new ClientNode(out, in);
+				ClientNode node = new ClientNode(out, in, conn.getInetAddress().getHostAddress(), conn.getPort()+"");
 				clients.add(node);
 				clientCount++;
 				
@@ -47,12 +47,14 @@ public class Server {
 				// server.close();
 			}*/
 		}
+		
 		for (int i = 0; i < clients.size(); i++) {
 			if((i+1) >= clients.size()) {
-				clients.get(i).setNeighbor(clients.get(0).getOutput());
-				clients.get(0).write("token");
+				clients.get(i).write(clients.get(0).getIp()+"/"+portasDisponiveis[1]+"/"+portasDisponiveis[0]);
+				// clients.get(0).write("token");
+			}else {
+				clients.get(i).write(clients.get(i+1).getIp()+"/"+portasDisponiveis[0]+"/"+portasDisponiveis[1]);
 			}
-			clients.get(i).setNeighbor(clients.get(i+1).getOutput());
 		}
 		
 		while(true) {

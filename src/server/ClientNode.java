@@ -7,12 +7,30 @@ import java.io.PrintWriter;
 public class ClientNode {
 	private PrintWriter output;
 	private BufferedReader input;
-	private PrintWriter neighbor;
-	private String token = null;
+	private String ip;
+	private String port;
 	
-	public ClientNode (PrintWriter pw, BufferedReader br) {
+	public ClientNode (PrintWriter pw, BufferedReader br, String ip, String port) {
 		this.output = pw;
 		this.input = br;
+		this.ip = ip;
+		this.port = port;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
 	}
 
 	public void write(String message) {
@@ -44,23 +62,4 @@ public class ClientNode {
 		this.input = input;
 	}
 
-	public PrintWriter getNeighbor() {
-		return neighbor;
-	}
-
-	public void setNeighbor(PrintWriter neighbor) {
-		this.neighbor = neighbor;
-	}
-
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-	
-	
-	
-	
 }
