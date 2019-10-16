@@ -22,7 +22,7 @@ public class Client {
 			in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			out = new PrintWriter(conn.getOutputStream(), true);
 			while (true) {
-				String linha = in.readLine(); //resposta do servidor
+				String linha = in.readLine(); 
 				if(linha.equalsIgnoreCase("token")) {
 					System.out.println("Execute sua ação");
 					String message = sc.nextLine();
@@ -40,13 +40,8 @@ public class Client {
 			System.out.println("Erro de entrada/saída ao criar socket");
 			e.printStackTrace();
 		}/* finally {
-			try {// fecha input stream e socket
-				if (in != null) {
 					in.close();
-				}
-				if (conn != null) {
 					conn.close();
-				}
 			} catch (IOException e) {
 				System.out.println("Erro ao fechar input stream ou socket");
 				e.printStackTrace();

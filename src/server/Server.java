@@ -47,9 +47,18 @@ public class Server {
 				// server.close();
 			}*/
 		}
+		for (int i = 0; i < clients.size(); i++) {
+			if((i+1) >= clients.size()) {
+				clients.get(i).setNeighbor(clients.get(0).getOutput());
+				clients.get(0).write("token");
+			}
+			clients.get(i).setNeighbor(clients.get(i+1).getOutput());
+		}
+		
 		while(true) {
 			try {
-			ClientNode client = clients.get(counter);
+			/*
+			 * ClientNode client = clients.get(counter);
 			counter++;
 			if(counter >= clients.size()) {
 				counter = 0;
@@ -58,6 +67,9 @@ public class Server {
 			
 				String message = client.read();
 				client.write("Resposta: " + message);
+			 */
+			
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

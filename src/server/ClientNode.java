@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 public class ClientNode {
 	private PrintWriter output;
 	private BufferedReader input;
+	private PrintWriter neighbor;
+	private String token = null;
 	
 	public ClientNode (PrintWriter pw, BufferedReader br) {
 		this.output = pw;
@@ -41,6 +43,24 @@ public class ClientNode {
 	public void setInput(BufferedReader input) {
 		this.input = input;
 	}
+
+	public PrintWriter getNeighbor() {
+		return neighbor;
+	}
+
+	public void setNeighbor(PrintWriter neighbor) {
+		this.neighbor = neighbor;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+	
+	
 	
 	
 }
