@@ -6,23 +6,28 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class Server {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		int porta = 56000;
-		int counter = 0;
 		int nClients = 2;
-		int[] portasDisponiveis = {56001, 56002}; //, 56002, 56003, 56004};
+		List<Integer> portasDisponiveis = new ArrayList<>();
 		ServerSocket server = new ServerSocket(porta);
-		server.setReuseAddress(true);
 		PrintWriter out = null;
 		BufferedReader in;
-		Socket conn = null; // socket para comunicar com o cliente
+		Socket conn = null;
 		LinkedList<ClientNode> clients = new LinkedList<>();
 		int clientCount = 0;
+		for (int i = 1; i < 6; i++) {
+			portasDisponiveis.add((56000 + i));
+		}
+		
 		while (clientCount < nClients) {
 			try {
+				server.setReuseAddress(true);
 				System.out.println("Aguardando conexao de cliente...");
 				conn = server.accept();
 				out = new PrintWriter(conn.getOutputStream(), true);
@@ -50,26 +55,15 @@ public class Server {
 		
 		for (int i = 0; i < clients.size(); i++) {
 			if((i+1) >= clients.size()) {
-				clients.get(i).write(clients.get(0).getIp()+"/"+portasDisponiveis[1]+"/"+portasDisponiveis[0]);
-				// clients.get(0).write("token");
+				clients.get(i).write(clients.get(0).getIp()+"/"+portasDisponiveis.get(i)+"/"+portasDisponiveis.get(0)+"/token");
 			}else {
-				clients.get(i).write(clients.get(i+1).getIp()+"/"+portasDisponiveis[0]+"/"+portasDisponiveis[1]);
+				clients.get(i).write(clients.get(i+1).getIp()+"/"+portasDisponiveis.get(i)+"/"+portasDisponiveis.get(i+1)+"/noToken");
 			}
 		}
 		
 		while(true) {
 			try {
-			/*
-			 * ClientNode client = clients.get(counter);
-			counter++;
-			if(counter >= clients.size()) {
-				counter = 0;
-			}
-			client.write("token");
 			
-				String message = client.read();
-				client.write("Resposta: " + message);
-			 */
 			
 				
 			} catch (Exception e) {
@@ -78,7 +72,5 @@ public class Server {
 		}
 
 	}
-	// o server.close() foi comentado por ser programa teste
-	// mas em uma app real, precisa fechar senão conexões/portas
-	// ficarão abertas e pode causar erro no sistema
+
 }
