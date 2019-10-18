@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import server.auxiliar.ClientNode;
+
 public class Server {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		int porta = 56000;
@@ -21,6 +23,7 @@ public class Server {
 		Socket conn = null;
 		LinkedList<ClientNode> clients = new LinkedList<>();
 		int clientCount = 0;
+		
 		for (int i = 1; i < 6; i++) {
 			portasDisponiveis.add((56000 + i));
 		}
@@ -63,7 +66,7 @@ public class Server {
 		
 		while(true) {
 			try {
-			
+				//TODO Fazer as alterações no arquivo
 			
 				
 			} catch (Exception e) {
