@@ -8,8 +8,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Classe responsável por realizar o controle de ler e escrever no arquivo os dados.
@@ -23,7 +21,6 @@ public class ReadWriteControl implements Runnable {
     private StringBuilder cache;
     private long timestamp;
     private boolean running;
-    private Semaphore semaphore;
 
     /**
      * Cria um novo Writer para trabalhar com o arquivo no local informado.
@@ -33,9 +30,8 @@ public class ReadWriteControl implements Runnable {
     public ReadWriteControl(String caminho) throws IOException {
         this.targetFile = new File(caminho);
         if(!this.targetFile.exists()){
-            this.targetFile.createNewFile();
+              this.targetFile.createNewFile();
         }
-        this.semaphore = new Semaphore(1);
         this.cache = new StringBuilder();
         this.FileWriter = new BufferedWriter(new FileWriter(this.targetFile, true));
     }
@@ -47,12 +43,10 @@ public class ReadWriteControl implements Runnable {
         this.timestamp = this.targetFile.lastModified();
         while (running) {
             try {
-                semaphore.acquire();
                 if (this.timestamp != this.targetFile.lastModified()) {
                     this.readData();
                     this.timestamp = this.targetFile.lastModified();
                 }
-                semaphore.release();
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 this.running = false;
@@ -67,12 +61,7 @@ public class ReadWriteControl implements Runnable {
      */
     public String getAllData() {
         String sData = "";
-        try {
-            semaphore.acquire();
-            sData = this.cache.toString();
-            semaphore.release();
-        } catch (InterruptedException ex) {
-        }
+        sData = this.cache.toString();
         return sData;
     }
 
@@ -83,15 +72,10 @@ public class ReadWriteControl implements Runnable {
      * @throws IOException
      */
     public void addData(String data) throws IOException {
-        try {
-            semaphore.acquire();
-            this.FileWriter.append(data);
-            this.FileWriter.flush();
-            this.cache.append(data);
-            this.timestamp = this.targetFile.lastModified();
-            semaphore.release();
-        } catch (InterruptedException ex) {
-        }
+        this.FileWriter.append(data);
+        this.FileWriter.flush();
+        this.cache.append(data);
+        this.timestamp = this.targetFile.lastModified();
     }
 
     /**
@@ -113,8 +97,7 @@ public class ReadWriteControl implements Runnable {
                     line = null;
                 }
             } while (line != null);
-        } catch (FileNotFoundException ex) {
-        }
+        } catch (FileNotFoundException ex) {}
     }
 
 }

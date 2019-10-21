@@ -36,4 +36,9 @@ public interface Observador {
      */
     public void onMessageDataSent();
     
+    /**
+     * Indica que os dados que houve um retorno do servidor diferente do TOKEN.
+     */
+    public void onMessageDataReceived(String data);
+    
 }

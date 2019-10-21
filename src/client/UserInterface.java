@@ -165,27 +165,24 @@ public class UserInterface extends JFrame implements Observador {
         bottomPanel.setBackground(new Color(220, 245, 255));
         this.add(bottomPanel, BorderLayout.SOUTH);
 
-        this.sendDataButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (sendTextArea.getText().isEmpty() || sendTextArea.getText().equals(PLACEHOLDER_TEXTO)) {
-                    JOptionPane.showMessageDialog(null, "Digite um texto...");
-                } else {
-                    String retText = sendTextArea.getText();
-                    sendTextArea.setText("");
-                    sendTextArea.setEnabled(false);
-                    sendDataButton.setEnabled(false);
-                    getNextButton.setEnabled(false);
-                    controller.querySendMessage(retText);
-                }
+        this.sendDataButton.addActionListener((ActionEvent e) -> {
+            if (sendTextArea.getText().isEmpty() || sendTextArea.getText().equals(PLACEHOLDER_TEXTO)) {
+                JOptionPane.showMessageDialog(null, "Digite um texto...");
+            } else {
+                String retText = sendTextArea.getText();
+                sendTextArea.setText("");
+                sendTextArea.setEnabled(false);
+                sendDataButton.setEnabled(false);
+                getNextButton.setEnabled(false);
+                controller.querySendMessage(retText);
             }
         });
 
-        this.getNextButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO solicitar texto do servidor e exibir.
-            }
+        this.getNextButton.addActionListener((ActionEvent e) -> {
+            sendTextArea.setEnabled(false);
+            sendDataButton.setEnabled(false);
+            getNextButton.setEnabled(false);
+            controller.queryRequestData();
         });
     }
 
@@ -219,6 +216,11 @@ public class UserInterface extends JFrame implements Observador {
         this.getNextButton.setEnabled(true);
         this.sendDataButton.setEnabled(true);
         this.sendTextArea.setEnabled(true);
+    }
+
+    @Override
+    public void onMessageDataReceived(String message) {
+        JOptionPane.showMessageDialog(this, message);
     }
 
 }

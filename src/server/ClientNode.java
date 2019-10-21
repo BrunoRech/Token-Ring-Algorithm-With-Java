@@ -3,9 +3,6 @@ package server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import server.Server;
 
 public class ClientNode implements Runnable{
 
@@ -13,6 +10,30 @@ public class ClientNode implements Runnable{
     private BufferedReader input;
     private String ip;
     private String port;
+    /**
+     * Mensagem para indicar Escrita.
+     */
+    public static final String WRITE_MESSAGE = "WRITE>";
+    /**
+     * Mensagem para indicar Leitura.
+     */
+    public static final String READ_MESSAGE = "READ>";
+    /**
+     * Mensagem para indicar a conclusão.
+     */
+    public static final String DONE_MESSAGE = "DONE>";
+    /**
+     * Mensagem para indicar transferencia de Dados.
+     */
+    public static final String DATA_MESSAGE = "BEGIN_DATA>";
+    /**
+     * Mensagem para indicar fim da transferencia de Dados.
+     */
+    public static final String DATA_END_MESSAGE = "<END_DATA";
+    /**
+     * Mensagem para indicar o TOKEN.
+     */
+    public static final String TOKEN_MESSAGE = "TOKEN>";
 
     public ClientNode(PrintWriter pw, BufferedReader br, String ip, String port) {
         this.output = pw;
@@ -35,7 +56,13 @@ public class ClientNode implements Runnable{
             String message;
             try {
                 message = input.readLine();
-                Server.getInstance().onMessageReceived(message);
+                if(message.startsWith(WRITE_MESSAGE)){
+                    message = message.replaceFirst("^" + WRITE_MESSAGE, "");
+                    Server.getInstance().onMessageReceived(this, message);
+                }
+                else if(message.startsWith(READ_MESSAGE)){
+                    Server.getInstance().onReadRequest(this);
+                }
             } catch (IOException ex) {}
         }
     }

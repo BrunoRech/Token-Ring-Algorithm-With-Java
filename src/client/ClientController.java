@@ -8,12 +8,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import server.ClientNode;
 
 
 public class ClientController implements Observado {
 
     private int portaServidor = 56000;
-    private boolean hasToken = false;
     private Socket connServidor = null;
     private BufferedReader serverIn = null;
     private PrintWriter serverOut;
@@ -38,7 +38,6 @@ public class ClientController implements Observado {
 
     public void conectToTheServer(String serverIp) throws IOException {
         connServidor = new Socket(serverIp, portaServidor);
-        System.out.println("Tentando conectar...");
         serverIn = new BufferedReader(new InputStreamReader(connServidor.getInputStream()));
         serverOut = new PrintWriter(connServidor.getOutputStream(), true);
         while (neighborIp == null || neighborPort == null || listenerPort == null) {
@@ -51,6 +50,7 @@ public class ClientController implements Observado {
             
             String token = serverIn.readLine();
             messageQuery.onMessageReceived(token);
+            beginSocketMonitor(serverIn);
         }
     }
 
@@ -61,17 +61,28 @@ public class ClientController implements Observado {
         Socket anterior = clientServer.accept();
         neighborOut = new PrintWriter(neighbor.getOutputStream(), true);
         neighborIn = new BufferedReader(new InputStreamReader(anterior.getInputStream()));
-        neighborOut.println("Eu sou o " + listenerPort + " , Ol� vizinho " + neighborPort);
         new Thread(this.messageQuery).start();
 
-        while (true) {
-            String message = neighborIn.readLine();
-            messageQuery.onMessageReceived(message);
-        }
+        beginSocketMonitor(neighborIn);
+    }
+    
+    protected void beginSocketMonitor(BufferedReader in){
+        new Thread(() -> {
+            while(true){
+                try {
+                    String message = in.readLine();
+                    messageQuery.onMessageReceived(message);
+                } catch (IOException ex) {}
+            }
+        }).start();
     }
     
     public void querySendMessage(String message){
-        this.messageQuery.queryMessage(message);
+        this.messageQuery.queryMessage(message.replaceAll("(.+(?:\r\n|\r|\n)?)", ClientNode.WRITE_MESSAGE + "$1"));
+    }
+    
+    public void queryRequestData(){
+        this.messageQuery.queryMessage(ClientNode.READ_MESSAGE);
     }
 
     @Override
@@ -79,9 +90,8 @@ public class ClientController implements Observado {
         observadores.add(obs);
     }
 
-    public void sendToken() {
-        System.out.println("Enviando o token...");
-        neighborOut.println("token");
+    public void sendToken(String token) {
+        neighborOut.println(ClientNode.TOKEN_MESSAGE + token);
     }
 
     public void sendNextMessage(String message) {
@@ -109,6 +119,12 @@ public class ClientController implements Observado {
     public void notifyMessageDataSent(){
         this.observadores.forEach((obs) -> {
             obs.onMessageDataSent();
+        });
+    }
+    
+    public void notifyDataReceived(String message){
+        this.observadores.forEach((obs) -> {
+            obs.onMessageDataReceived(message);
         });
     }
 

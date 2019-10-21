@@ -1,6 +1,7 @@
 package client;
 
 import javax.swing.SwingUtilities;
+import server.ClientNode;
 
 /**
  * Fila para o envio de mensagens do servidor.
@@ -8,34 +9,52 @@ import javax.swing.SwingUtilities;
  */
 public class MessageQuery implements IMessageQuery{
     
-    private boolean hasToken;
+    private String token;
     private StringBuilder messageQuery;
-    public static final int TEMPO_ESPERA_ENVIO_TOKEN = 1000;
+    private StringBuilder bufferedMessage;
+    private boolean waitingResponse = false;
+    public static final int TEMPO_ESPERA_ENVIO_TOKEN = 500; // Força o cliente a segurar o token por um tempo.
     public static final int TEMPO_ESPERA_VERIFICA_TOKEN = 50;
     
     public MessageQuery(){
-        this.hasToken = false;
         this.messageQuery = new StringBuilder();
     }
     
     @Override
-    public void onMessageReceived(String message){
-        if (message.equalsIgnoreCase("token")) {
-            System.out.println("Recebi o token, agora vou repassar para o vizinho");
-            hasToken = true;
-            SwingUtilities.invokeLater(() -> {
-                ClientController.getInstance().notifyTokenStatus(this.hasToken);
-            });
+    public synchronized void onMessageReceived(String message){
+        // @todo Melhorar.
+        System.out.println("Recebeu: " + message);
+        if (message.startsWith(ClientNode.TOKEN_MESSAGE)) {
+            message = message.replaceFirst(ClientNode.TOKEN_MESSAGE, "");
+            if(message.equalsIgnoreCase("notoken")){
+                SwingUtilities.invokeLater(() -> {
+                    ClientController.getInstance().notifyTokenStatus(false);
+                });
+            }
+            else {
+                this.token = message;
+                SwingUtilities.invokeLater(() -> {
+                    ClientController.getInstance().notifyTokenStatus(true);
+                });
+            }
         }
-        else if(message.equalsIgnoreCase("notoken")){
-            System.out.println("Não recebi o token.");
-            hasToken = false;
-            SwingUtilities.invokeLater(() -> {
-                ClientController.getInstance().notifyTokenStatus(this.hasToken);
-            });
+        else if(bufferedMessage != null){
+            if(message.equals(ClientNode.DATA_END_MESSAGE)){
+                final String receivedMessage = bufferedMessage.toString();
+                SwingUtilities.invokeLater(() -> {
+                    ClientController.getInstance().notifyDataReceived(receivedMessage);
+                });
+                bufferedMessage = null;
+            }
+            else {
+                bufferedMessage.append(message).append("\n");
+            }
         }
-        else {
-            System.out.println("->> " + message);
+        else if(message.equals(ClientNode.DATA_MESSAGE)){
+            bufferedMessage = new StringBuilder();
+        }
+        else if(message.equals(ClientNode.DONE_MESSAGE)){
+            waitingResponse = false;
         }
     }
     
@@ -47,21 +66,30 @@ public class MessageQuery implements IMessageQuery{
     @Override
     public void run() {
         while(true){
-            if(this.hasToken){
+            if(this.token != null){
                 try {
                     Thread.sleep(TEMPO_ESPERA_ENVIO_TOKEN);
                 } catch (InterruptedException ex) {}
                 if(this.messageQuery.length() > 0){
-                    ClientController.getInstance().sendNextMessage(messageQuery.toString());
+                    String[] lines = messageQuery.toString().split("\r\n|\r|\n");
                     this.messageQuery.delete(0, this.messageQuery.length());
+                    for (String line : lines) {
+                        ClientController.getInstance().sendNextMessage(line);
+                        this.waitingResponse = true;
+                        while(this.waitingResponse){
+                            try {
+                                Thread.sleep(TEMPO_ESPERA_VERIFICA_TOKEN);
+                            } catch (InterruptedException ex) {}
+                        }
+                    }
                     SwingUtilities.invokeLater(() -> {
                         ClientController.getInstance().notifyMessageDataSent();
                     });
                 }
-                this.hasToken = false;
-                ClientController.getInstance().sendToken();
+                ClientController.getInstance().sendToken(this.token);
+                this.token = null;
                 SwingUtilities.invokeLater(() -> {
-                    ClientController.getInstance().notifyTokenStatus(this.hasToken);
+                    ClientController.getInstance().notifyTokenStatus(this.token != null);
                 });
             }
             try {

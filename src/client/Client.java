@@ -32,15 +32,5 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*
-        while(true){
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-         */
     }
 }
