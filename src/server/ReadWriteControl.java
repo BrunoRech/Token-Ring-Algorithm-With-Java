@@ -30,19 +30,14 @@ public class ReadWriteControl implements Runnable {
      *
      * @param caminho
      */
-    public ReadWriteControl(String caminho) {
+    public ReadWriteControl(String caminho) throws IOException {
         this.targetFile = new File(caminho);
         if(!this.targetFile.exists()){
-            try {
-                this.targetFile.createNewFile();
-            } catch (IOException ex) {}
+            this.targetFile.createNewFile();
         }
         this.semaphore = new Semaphore(1);
         this.cache = new StringBuilder();
-        try {
-            this.FileWriter = new BufferedWriter(new FileWriter(this.targetFile, true));
-        } catch (IOException ex) {
-        }
+        this.FileWriter = new BufferedWriter(new FileWriter(this.targetFile, true));
     }
 
     @Override

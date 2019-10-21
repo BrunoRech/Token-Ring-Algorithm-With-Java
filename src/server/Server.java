@@ -9,17 +9,18 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class Server {
     
-    private static Server instance;
+    private int porta;
+    private int clientCount;
     private ServerSocket server;
     private ReadWriteControl fileControl;
-    public static final String CAMINHO_ARQUIVO = "/src/arquivo.txt";
+    public static final String CAMINHO_ARQUIVO = "src/arquivo_servidor_dsd.txt";
+    public static final int NUMERO_CLIENTES = 2;
     
+    private static Server instance;
     public static Server getInstance(){
         if(instance == null){
             instance = new Server();
@@ -32,24 +33,25 @@ public class Server {
     }
 
     private Server() {
-        int porta = 56000;
-        int nClients = 2;
-        List<Integer> portasDisponiveis = new ArrayList<>();
-        this.fileControl = new ReadWriteControl(CAMINHO_ARQUIVO);
         try {
+            this.porta = 56000;
+            this.clientCount = 0;
+            this.fileControl = new ReadWriteControl(CAMINHO_ARQUIVO);
             this.server = new ServerSocket(porta);
-        } catch (IOException ex) {}
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        List<Integer> portasDisponiveis = new ArrayList<>();
         PrintWriter out = null;
         BufferedReader in;
         Socket conn = null;
         LinkedList<ClientNode> clients = new LinkedList<>();
-        int clientCount = 0;
 
         for (int i = 1; i < 6; i++) {
             portasDisponiveis.add((56000 + i));
         }
 
-        while (clientCount < nClients) {
+        while (clientCount < NUMERO_CLIENTES) {
             try {
                 server.setReuseAddress(true);
                 System.out.println("Aguardando conexao de cliente...");
@@ -67,15 +69,7 @@ public class Server {
             } catch (IOException ex) {
                 ex.printStackTrace();
                 System.out.println("Essa porta j� est� ocupada");
-            }/* finally {
-				// fecha conex�o e output stream
-				conn.close();
-				if (out != null) {
-					out.close();
-				}
-				System.out.println("Conexao fechada.");
-				// server.close();
-			}*/
+            }
         }
 
         for (int i = 0; i < clients.size(); i++) {

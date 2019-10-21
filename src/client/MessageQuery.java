@@ -11,6 +11,7 @@ public class MessageQuery implements IMessageQuery{
     private boolean hasToken;
     private StringBuilder messageQuery;
     public static final int TEMPO_ESPERA_ENVIO_TOKEN = 1000;
+    public static final int TEMPO_ESPERA_VERIFICA_TOKEN = 50;
     
     public MessageQuery(){
         this.hasToken = false;
@@ -47,6 +48,9 @@ public class MessageQuery implements IMessageQuery{
     public void run() {
         while(true){
             if(this.hasToken){
+                try {
+                    Thread.sleep(TEMPO_ESPERA_ENVIO_TOKEN);
+                } catch (InterruptedException ex) {}
                 if(this.messageQuery.length() > 0){
                     ClientController.getInstance().sendNextMessage(messageQuery.toString());
                     this.messageQuery.delete(0, this.messageQuery.length());
@@ -54,14 +58,14 @@ public class MessageQuery implements IMessageQuery{
                         ClientController.getInstance().notifyMessageDataSent();
                     });
                 }
-                ClientController.getInstance().sendToken();
                 this.hasToken = false;
+                ClientController.getInstance().sendToken();
                 SwingUtilities.invokeLater(() -> {
                     ClientController.getInstance().notifyTokenStatus(this.hasToken);
                 });
             }
             try {
-                Thread.sleep(TEMPO_ESPERA_ENVIO_TOKEN);
+                Thread.sleep(TEMPO_ESPERA_VERIFICA_TOKEN);
             } catch (InterruptedException ex) {}
         }
     }
