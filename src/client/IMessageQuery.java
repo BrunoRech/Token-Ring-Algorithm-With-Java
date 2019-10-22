@@ -2,7 +2,7 @@ package client;
 
 /**
  *
- * @author Jeferson Penz
+ * @author Bruno Galeazzi Rech, Jeferson Penz
  */
 interface IMessageQuery extends Runnable {
 

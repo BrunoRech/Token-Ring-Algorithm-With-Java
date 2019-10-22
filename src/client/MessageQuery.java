@@ -7,7 +7,7 @@ import server.ClientNode;
 /**
  * Fila para o envio de mensagens do servidor.
  * 
- * @author Jeferson Penz
+ * @author Bruno Galeazzi Rech, Jeferson Penz
  */
 public class MessageQuery implements IMessageQuery {
 
@@ -25,8 +25,6 @@ public class MessageQuery implements IMessageQuery {
 
     @Override
     public synchronized void onMessageReceived(String message) {
-        // @todo Melhorar.
-        System.out.println("Recebeu: " + message);
         if (message.startsWith(ClientNode.LISTENER)) {
             ClientController.getInstance().connectWithNeighbor();
         } else if (message.startsWith(ClientNode.TOKEN_MESSAGE)) {

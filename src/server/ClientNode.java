@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * Classe para comunicação com o cliente.
+ * @author Bruno Galeazzi Rech, Jeferson Penz
+ */
 public class ClientNode implements Runnable {
 
     private PrintWriter output;

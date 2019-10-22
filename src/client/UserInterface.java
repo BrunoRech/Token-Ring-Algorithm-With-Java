@@ -25,7 +25,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 /**
  * Implementacao padrao da interface do Usuario usando do Swing.
  *
- * @author Jeferson Penz
+ * @author Bruno Galeazzi Rech, Jeferson Penz
  */
 public class UserInterface extends JFrame implements Observador {
 

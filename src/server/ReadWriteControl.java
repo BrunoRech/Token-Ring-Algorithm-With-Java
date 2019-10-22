@@ -12,7 +12,7 @@ import java.io.IOException;
  * Classe responsável por realizar o controle de ler e escrever no arquivo os
  * dados.
  *
- * @author Jeferson Penz
+ * @author Bruno Galeazzi Rech, Jeferson Penz
  */
 public class ReadWriteControl implements Runnable {
 

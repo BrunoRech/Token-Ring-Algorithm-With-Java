@@ -2,7 +2,7 @@ package server;
 
 /**
  * Interface para capacidades do servidor para comunicação com o usuário.
- * @author Jeferson Penz
+ * @author Bruno Galeazzi Rech, Jeferson Penz
  */
 public interface ServerObserver {
     

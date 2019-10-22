@@ -18,7 +18,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  * Interface de Usuário para o servidor.
- * @author Jeferson Penz
+ * @author Bruno Galeazzi Rech, Jeferson Penz
  */
 public class ServerInterface extends JFrame implements ServerObserver{
     

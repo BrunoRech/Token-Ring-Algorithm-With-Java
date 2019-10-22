@@ -1,6 +1,11 @@
 package client;
 
-//interface do observado com a declaracao de cada metodo que sera usado
+/**
+ * Classe para implementação por quem observa os dados da tela.
+ *
+ * @author Bruno Galeazzi Rech, Jeferson Penz
+ */
 public interface Observado {
-	void addObservador(Observador obs);
+
+    void addObservador(Observador obs);
 }

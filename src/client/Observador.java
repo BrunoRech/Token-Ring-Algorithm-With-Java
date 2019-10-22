@@ -2,7 +2,7 @@ package client;
 
 /**
  * Interface com as capacidades da Tela de comunicação com o Usuário.
- * @author Jeferson Penz
+ * @author Bruno Galeazzi Rech, Jeferson Penz
  */
 public interface Observador {
 

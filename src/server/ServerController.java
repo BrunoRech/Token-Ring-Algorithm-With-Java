@@ -18,7 +18,10 @@ import java.util.List;
 import java.util.Random;
 import javax.swing.SwingUtilities;
 
-
+/**
+ * Controle para a tela do servidor.
+ * @author Bruno Galeazzi Rech, Jeferson Penz
+ */
 public class ServerController {
     
     private int porta;
@@ -33,6 +36,10 @@ public class ServerController {
     private List<ServerObserver> observers;
     LinkedList<ClientNode> clients;
     
+    /**
+     * Cria o token para troca e comunicação.
+     * @return 
+     */
     public static String createToken(){
         String token = "";
         Random rnd = new Random();
