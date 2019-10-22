@@ -1,7 +1,7 @@
 package client;
 
 /**
- * Interface com as capacidades da Tela de comunicação com o Usuário - Cliente.
+ * Interface com as capacidades da Tela de comunicação com o Usuário.
  * @author Jeferson Penz
  */
 public interface Observador {

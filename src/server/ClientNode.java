@@ -46,6 +46,10 @@ public class ClientNode implements Runnable{
         return ip;
     }
 
+    public String getPort() {
+        return port;
+    }
+
     public void write(String message) {
         output.println(message);
     }
@@ -58,10 +62,10 @@ public class ClientNode implements Runnable{
                 message = input.readLine();
                 if(message.startsWith(WRITE_MESSAGE)){
                     message = message.replaceFirst("^" + WRITE_MESSAGE, "");
-                    Server.getInstance().onMessageReceived(this, message);
+                    ServerController.getInstance().onMessageReceived(this, message);
                 }
                 else if(message.startsWith(READ_MESSAGE)){
-                    Server.getInstance().onReadRequest(this);
+                    ServerController.getInstance().onReadRequest(this);
                 }
             } catch (IOException ex) {}
         }

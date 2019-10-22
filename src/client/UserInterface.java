@@ -7,9 +7,11 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -19,6 +21,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 /**
@@ -45,8 +49,23 @@ public class UserInterface extends JFrame implements Observador {
      */
     public UserInterface() {
         super("Algoritmo TokenRing");
+        this.controller = ClientController.getInstance();
         this.initProperties();
         this.initComponents();
+    }
+    
+    /**
+     * Inicia a conexão com o servidor.
+     */
+    public void iniciaConexao(){
+        String serverIp = JOptionPane.showInputDialog(this, "Digite o IP do Servidor", "127.0.0.1");
+        try {
+            this.controller.conectToTheServer(serverIp);
+            this.controller.openClientListener();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Não foi possível conectar-se ao servidor em: " + serverIp);
+            System.exit(0);
+        }
     }
 
     /**
@@ -221,6 +240,20 @@ public class UserInterface extends JFrame implements Observador {
     @Override
     public void onMessageDataReceived(String message) {
         JOptionPane.showMessageDialog(this, message);
+    }
+
+    /**
+     * Método Inicial da aplicação.
+     * @param args 
+     */
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+        }
+        UserInterface UI = new UserInterface();
+        UI.setVisible(true);
+        UI.iniciaConexao();
     }
 
 }
