@@ -29,6 +29,8 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 public class UserInterface extends JFrame implements Observador {
 
+    private static final long serialVersionUID = 1L;
+
     private static final String PLACEHOLDER_TEXTO = "Digite Aqui.";
 
     private JLabel nextServerData;
