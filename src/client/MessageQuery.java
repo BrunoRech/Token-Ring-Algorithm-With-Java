@@ -13,6 +13,7 @@ public class MessageQuery implements IMessageQuery{
     private StringBuilder messageQuery;
     private StringBuilder bufferedMessage;
     private boolean waitingResponse = false;
+    private boolean useToken = true;
     public static final int TEMPO_ESPERA_ENVIO_TOKEN = 500; // Força o cliente a segurar o token por um tempo.
     public static final int TEMPO_ESPERA_VERIFICA_TOKEN = 50;
     
@@ -31,7 +32,13 @@ public class MessageQuery implements IMessageQuery{
                     ClientController.getInstance().notifyTokenStatus(false);
                 });
             }
-            else {
+            else if(message.equalsIgnoreCase("nouse")){
+                this.useToken = false;
+                SwingUtilities.invokeLater(() -> {
+                    ClientController.getInstance().notifyTokenStatus(true);
+                });
+            }
+            else{
                 this.token = message;
                 SwingUtilities.invokeLater(() -> {
                     ClientController.getInstance().notifyTokenStatus(true);
@@ -66,7 +73,7 @@ public class MessageQuery implements IMessageQuery{
     @Override
     public void run() {
         while(true){
-            if(this.token != null){
+            if(!useToken || this.token != null){
                 try {
                     Thread.sleep(TEMPO_ESPERA_ENVIO_TOKEN);
                 } catch (InterruptedException ex) {}
@@ -86,11 +93,13 @@ public class MessageQuery implements IMessageQuery{
                         ClientController.getInstance().notifyMessageDataSent();
                     });
                 }
-                ClientController.getInstance().sendToken(this.token);
-                this.token = null;
-                SwingUtilities.invokeLater(() -> {
-                    ClientController.getInstance().notifyTokenStatus(this.token != null);
-                });
+                if(useToken){
+                    ClientController.getInstance().sendToken(this.token);
+                    this.token = null;
+                    SwingUtilities.invokeLater(() -> {
+                        ClientController.getInstance().notifyTokenStatus(this.token != null);
+                    });
+                }
             }
             try {
                 Thread.sleep(TEMPO_ESPERA_VERIFICA_TOKEN);
