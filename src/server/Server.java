@@ -15,18 +15,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-
 public class Server {
-    
+
     private int porta;
     private int clientCount;
     private ServerSocket server;
     private ReadWriteControl fileControl;
-    public static final int NUMERO_CLIENTES = 5;
+    private int clientsReady = 0;
+    public static final int NUMERO_CLIENTES = 2;
     public static final String CAMINHO_ARQUIVO = "src/arquivo_servidor_dsd.txt";
     public static final String TOKEN = createToken();
-    
-    public static String createToken(){
+    LinkedList<ClientNode> clients;
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Server.getInstance();
+    }
+
+    public static String createToken() {
         String token = "";
         Random rnd = new Random();
         int firstRand = rnd.nextInt(999999);
@@ -39,24 +44,22 @@ public class Server {
             MessageDigest md = MessageDigest.getInstance("MD5");
             BigInteger bigInt = new BigInteger(1, md.digest(bytes));
             token = bigInt.toString(16);
-            while(token.length() < 32 ){
+            while (token.length() < 32) {
                 token = "0" + token;
             }
-        } catch (NoSuchAlgorithmException ex) {}
+        } catch (NoSuchAlgorithmException ex) {
+        }
         System.out.println(token);
         return token;
     }
-    
+
     private static Server instance;
-    public static Server getInstance(){
-        if(instance == null){
+
+    public static Server getInstance() {
+        if (instance == null) {
             instance = new Server();
         }
         return instance;
-    }
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-        Server.getInstance();
     }
 
     private Server() {
@@ -73,7 +76,7 @@ public class Server {
         PrintWriter out = null;
         BufferedReader in;
         Socket conn = null;
-        LinkedList<ClientNode> clients = new LinkedList<>();
+        clients = new LinkedList<>();
 
         for (int i = 1; i < 6; i++) {
             portasDisponiveis.add((56000 + i));
@@ -91,8 +94,7 @@ public class Server {
                 new Thread(node).start();
                 clientCount++;
 
-                System.out.println(
-                        "Conexao estabelecida." + clientCount + " clientes conectados...");
+                System.out.println("Conexao estabelecida." + clientCount + " clientes conectados...");
 
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -102,21 +104,34 @@ public class Server {
 
         for (int i = 0; i < clients.size(); i++) {
             if ((i + 1) >= clients.size()) {
-                clients.get(i).write(clients.get(0).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(0));
+                clients.get(i).write(
+                        clients.get(0).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(0));
                 clients.get(i).write(ClientNode.TOKEN_MESSAGE + TOKEN);
             } else {
-                clients.get(i).write(clients.get(i + 1).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(i + 1));
+                clients.get(i).write(clients.get(i + 1).getIp() + "/" + portasDisponiveis.get(i) + "/"
+                        + portasDisponiveis.get(i + 1));
                 clients.get(i).write(ClientNode.TOKEN_MESSAGE + "notoken");
             }
         }
+
     }
-    
-    public void onMessageReceived(ClientNode target, String message){
+
+    public void increaseClientReady() {
+        this.clientsReady++;
+        if (this.clientsReady >= this.clientCount) {
+            for (int i = 0; i < clients.size(); i++) {
+                clients.get(i).write(ClientNode.LISTENER);
+            }
+        }
+    }
+
+    public void onMessageReceived(ClientNode target, String message) {
         // @todo Exibir em interface grafica.
         System.out.println("Escrevendo: " + message);
         try {
             this.fileControl.addData(message + "\n");
-        } catch (IOException ex) {}
+        } catch (IOException ex) {
+        }
         target.write(ClientNode.DONE_MESSAGE);
     }
 
@@ -128,8 +143,8 @@ public class Server {
         target.write(ClientNode.DATA_END_MESSAGE);
         target.write(ClientNode.DONE_MESSAGE);
     }
-    
-    protected String prepareSendData(String data){
+
+    protected String prepareSendData(String data) {
         return data.replaceAll(ClientNode.DATA_MESSAGE + "|" + ClientNode.DATA_END_MESSAGE, "");
     }
 

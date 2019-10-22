@@ -6,15 +6,17 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import server.ClientNode;
 
+import server.ClientNode;
 
 public class ClientController implements Observado {
 
     private int portaServidor = 56000;
     private Socket connServidor = null;
+    ServerSocket clientServer = null;
     private BufferedReader serverIn = null;
     private PrintWriter serverOut;
     private BufferedReader neighborIn;
@@ -47,7 +49,7 @@ public class ClientController implements Observado {
             listenerPort = linha[2];
             this.notifyCurrentServerData(listenerPort);
             this.notifyNextServerData(neighborIp, neighborPort);
-            
+
             String token = serverIn.readLine();
             messageQuery.onMessageReceived(token);
             beginSocketMonitor(serverIn);
@@ -55,33 +57,48 @@ public class ClientController implements Observado {
     }
 
     public void openClientListener() throws NumberFormatException, IOException {
-        ServerSocket clientServer = new ServerSocket(Integer.parseInt(listenerPort));
+        clientServer = new ServerSocket(Integer.parseInt(listenerPort));
+        serverOut.println(ClientNode.LISTENER);
+        /*
+         * String message = null; while(message == null){ message = serverIn.readLine();
+         * if(message.startsWith(ClientNode.LISTENER)){ this.connectWithNeighbor(); } }
+         */
 
-        Socket neighbor = new Socket(neighborIp, Integer.parseInt(neighborPort));
-        Socket anterior = clientServer.accept();
-        neighborOut = new PrintWriter(neighbor.getOutputStream(), true);
-        neighborIn = new BufferedReader(new InputStreamReader(anterior.getInputStream()));
-        new Thread(this.messageQuery).start();
-
-        beginSocketMonitor(neighborIn);
     }
-    
-    protected void beginSocketMonitor(BufferedReader in){
+
+    public void connectWithNeighbor() {
+        System.out.println("Conectando com o vizinho");
+        Socket neighbor;
+        try {
+            neighbor = new Socket(neighborIp, Integer.parseInt(neighborPort));
+            Socket anterior = clientServer.accept();
+            neighborOut = new PrintWriter(neighbor.getOutputStream(), true);
+            neighborIn = new BufferedReader(new InputStreamReader(anterior.getInputStream()));
+            new Thread(this.messageQuery).start();
+
+            beginSocketMonitor(neighborIn);
+        } catch (NumberFormatException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void beginSocketMonitor(BufferedReader in) {
         new Thread(() -> {
-            while(true){
+            while (true) {
                 try {
                     String message = in.readLine();
                     messageQuery.onMessageReceived(message);
-                } catch (IOException ex) {}
+                } catch (IOException ex) {
+                }
             }
         }).start();
     }
-    
-    public void querySendMessage(String message){
+
+    public void querySendMessage(String message) {
         this.messageQuery.queryMessage(message.replaceAll("(.+(?:\r\n|\r|\n)?)", ClientNode.WRITE_MESSAGE + "$1"));
     }
-    
-    public void queryRequestData(){
+
+    public void queryRequestData() {
         this.messageQuery.queryMessage(ClientNode.READ_MESSAGE);
     }
 
@@ -97,32 +114,32 @@ public class ClientController implements Observado {
     public void sendNextMessage(String message) {
         serverOut.println(message);
     }
-    
-    public void notifyCurrentServerData(String port){
+
+    public void notifyCurrentServerData(String port) {
         this.observadores.forEach((obs) -> {
             obs.setCurrentServerData(port);
         });
     }
-    
-    public void notifyNextServerData(String ip, String port){
+
+    public void notifyNextServerData(String ip, String port) {
         this.observadores.forEach((obs) -> {
             obs.setNextServerData(ip, port);
         });
     }
-    
-    public void notifyTokenStatus(boolean status){
+
+    public void notifyTokenStatus(boolean status) {
         this.observadores.forEach((obs) -> {
             obs.setTokenReceived(status);
         });
     }
-    
-    public void notifyMessageDataSent(){
+
+    public void notifyMessageDataSent() {
         this.observadores.forEach((obs) -> {
             obs.onMessageDataSent();
         });
     }
-    
-    public void notifyDataReceived(String message){
+
+    public void notifyDataReceived(String message) {
         this.observadores.forEach((obs) -> {
             obs.onMessageDataReceived(message);
         });

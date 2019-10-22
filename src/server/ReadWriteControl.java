@@ -7,10 +7,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.concurrent.Semaphore;
 
 /**
- * Classe responsável por realizar o controle de ler e escrever no arquivo os dados.
+ * Classe responsável por realizar o controle de ler e escrever no arquivo os
+ * dados.
  *
  * @author Jeferson Penz
  */
@@ -29,8 +29,8 @@ public class ReadWriteControl implements Runnable {
      */
     public ReadWriteControl(String caminho) throws IOException {
         this.targetFile = new File(caminho);
-        if(!this.targetFile.exists()){
-              this.targetFile.createNewFile();
+        if (!this.targetFile.exists()) {
+            this.targetFile.createNewFile();
         }
         this.cache = new StringBuilder();
         this.FileWriter = new BufferedWriter(new FileWriter(this.targetFile, true));
@@ -97,7 +97,8 @@ public class ReadWriteControl implements Runnable {
                     line = null;
                 }
             } while (line != null);
-        } catch (FileNotFoundException ex) {}
+        } catch (FileNotFoundException ex) {
+        }
     }
 
 }

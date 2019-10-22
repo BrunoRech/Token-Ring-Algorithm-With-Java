@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class ClientNode implements Runnable{
+public class ClientNode implements Runnable {
 
     private PrintWriter output;
     private BufferedReader input;
@@ -14,6 +14,10 @@ public class ClientNode implements Runnable{
      * Mensagem para indicar Escrita.
      */
     public static final String WRITE_MESSAGE = "WRITE>";
+    /**
+     * Mensagem para indicar que o listener do cliente está aberto.
+     */
+    public static final String LISTENER = "LISTENER>";
     /**
      * Mensagem para indicar Leitura.
      */
@@ -52,18 +56,20 @@ public class ClientNode implements Runnable{
 
     @Override
     public void run() {
-        while(true){
+        while (true) {
             String message;
             try {
                 message = input.readLine();
-                if(message.startsWith(WRITE_MESSAGE)){
+                if (message.startsWith(WRITE_MESSAGE)) {
                     message = message.replaceFirst("^" + WRITE_MESSAGE, "");
                     Server.getInstance().onMessageReceived(this, message);
-                }
-                else if(message.startsWith(READ_MESSAGE)){
+                } else if (message.startsWith(READ_MESSAGE)) {
                     Server.getInstance().onReadRequest(this);
+                } else if (message.startsWith(LISTENER)) {
+                    Server.getInstance().increaseClientReady();
                 }
-            } catch (IOException ex) {}
+            } catch (IOException ex) {
+            }
         }
     }
 

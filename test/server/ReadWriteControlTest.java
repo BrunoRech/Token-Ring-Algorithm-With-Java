@@ -25,7 +25,8 @@ public class ReadWriteControlTest {
             for (int i = 0; i < 10; i++) {
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException ex) {}
+                } catch (InterruptedException ex) {
+                }
                 control.addData("Teste de escrita no arquivo: " + i + "\n");
                 for (int j = 0; j < 100; j++) {
                     control.addData("Teste");
@@ -37,5 +38,5 @@ public class ReadWriteControlTest {
             ex.printStackTrace();
         }
     }
-    
+
 }

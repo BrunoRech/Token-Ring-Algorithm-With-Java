@@ -11,11 +11,13 @@ public class Client {
 
     public static void main(String[] args) {
 
-        String serverIp = "127.0.0.1"; //passar por um input
+        // String serverIp = "10.15.45.191"; //passar por um input
+        String serverIp = "127.0.0.1"; // passar por um input
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException
+                | IllegalAccessException e) {
         }
         UserInterface UI = new UserInterface();
         UI.setVisible(true);

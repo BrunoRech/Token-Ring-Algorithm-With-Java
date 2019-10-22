@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-
 /**
  * Implementacao padrao da interface do Usuario usando do Swing.
  *
@@ -33,7 +32,7 @@ public class UserInterface extends JFrame implements Observador {
     private JLabel nextServerData;
     private JLabel currentServerData;
     private JLabel tokenStatus;
-    
+
     private JButton getNextButton;
     private JButton sendDataButton;
 
