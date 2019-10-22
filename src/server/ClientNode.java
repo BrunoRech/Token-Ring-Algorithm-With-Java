@@ -66,11 +66,11 @@ public class ClientNode implements Runnable {
                 message = input.readLine();
                 if (message.startsWith(WRITE_MESSAGE)) {
                     message = message.replaceFirst("^" + WRITE_MESSAGE, "");
-                    Server.getInstance().onMessageReceived(this, message);
+                    ServerController.getInstance().onMessageReceived(this, message);
                 } else if (message.startsWith(READ_MESSAGE)) {
-                    Server.getInstance().onReadRequest(this);
+                    ServerController.getInstance().onReadRequest(this);
                 } else if (message.startsWith(LISTENER)) {
-                    Server.getInstance().increaseClientReady();
+                    ServerController.getInstance().increaseClientReady();
                 }
             } catch (IOException ex) {
             }

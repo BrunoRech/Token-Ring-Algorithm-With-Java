@@ -23,6 +23,7 @@ public class ServerController {
     
     private int porta;
     private int clientCount;
+    private int clientsReady = 0;
     private ServerSocket server;
     private ReadWriteControl fileControl;
     public static final int NUMERO_CLIENTES = 2;
@@ -30,6 +31,7 @@ public class ServerController {
     public static final String TOKEN = createToken();
     public static final boolean USA_TOKEN = true;
     private List<ServerObserver> observers;
+    LinkedList<ClientNode> clients;
     
     public static String createToken(){
         String token = "";
@@ -61,6 +63,7 @@ public class ServerController {
 
     private ServerController() {
         this.observers = new ArrayList<>();
+        this.clients = new LinkedList<>();
         this.porta = 56000;
         this.clientCount = 0;
         try {
@@ -75,7 +78,6 @@ public class ServerController {
         PrintWriter out;
         BufferedReader in;
         Socket conn;
-        LinkedList<ClientNode> clients = new LinkedList<>();
 
         for (int i = 1; i < 6; i++) {
             portasDisponiveis.add((56000 + i));
@@ -188,6 +190,15 @@ public class ServerController {
      */
     public void addObserver(ServerObserver observer){
         this.observers.add(observer);
+    }
+
+    public void increaseClientReady() {
+        this.clientsReady++;
+        if (this.clientsReady >= this.clientCount) {
+            for (int i = 0; i < clients.size(); i++) {
+                clients.get(i).write(ClientNode.LISTENER);
+            }
+        }
     }
 
 }
