@@ -50,6 +50,10 @@ public class ClientNode implements Runnable {
         return ip;
     }
 
+    public String getPort() {
+        return port;
+    }
+
     public void write(String message) {
         output.println(message);
     }

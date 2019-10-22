@@ -10,13 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -26,8 +19,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import client.controller.Observador;
 
@@ -37,6 +28,7 @@ import client.controller.Observador;
  */
 public class UserInterface extends JFrame implements IUserInterface, Observador{
     
+    private static final long serialVersionUID = 1L;
     private static final String PLACEHOLDER_TEXTO = "Digite Aqui.";
     
     private JLabel    nextServerData;

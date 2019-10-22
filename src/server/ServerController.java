@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,24 +16,20 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import javax.swing.SwingUtilities;
 
-public class Server {
 
+public class ServerController {
+    
     private int porta;
     private int clientCount;
     private ServerSocket server;
     private ReadWriteControl fileControl;
-    private int clientsReady = 0;
-
     public static final int NUMERO_CLIENTES = 2;
     public static final String CAMINHO_ARQUIVO = "src/arquivo_servidor_dsd.txt";
     public static final String TOKEN = createToken();
     public static final boolean USA_TOKEN = true;
-    LinkedList<ClientNode> clients;
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-        Server.getInstance();
-    }
+    private List<ServerObserver> observers;
     
     public static String createToken(){
         String token = "";
@@ -46,48 +44,53 @@ public class Server {
             MessageDigest md = MessageDigest.getInstance("MD5");
             BigInteger bigInt = new BigInteger(1, md.digest(bytes));
             token = bigInt.toString(16);
-            while (token.length() < 32) {
+            while(token.length() < 32 ){
                 token = "0" + token;
             }
-        } catch (NoSuchAlgorithmException ex) {
-        }
-        System.out.println(token);
+        } catch (NoSuchAlgorithmException ex) {}
         return token;
     }
-
-    private static Server instance;
-
-    public static Server getInstance() {
-        if (instance == null) {
-            instance = new Server();
+    
+    private static ServerController instance;
+    public static ServerController getInstance(){
+        if(instance == null){
+            instance = new ServerController();
         }
         return instance;
     }
 
-    private Server() {
+    private ServerController() {
+        this.observers = new ArrayList<>();
+        this.porta = 56000;
+        this.clientCount = 0;
         try {
-            this.porta = 56000;
-            this.clientCount = 0;
             this.fileControl = new ReadWriteControl(CAMINHO_ARQUIVO);
             new Thread(this.fileControl).start();
             this.server = new ServerSocket(porta);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        } catch (IOException ex) {}
+    }
+    
+    public void openConnection(){
         List<Integer> portasDisponiveis = new ArrayList<>();
-        PrintWriter out = null;
+        PrintWriter out;
         BufferedReader in;
-        Socket conn = null;
-        clients = new LinkedList<>();
+        Socket conn;
+        LinkedList<ClientNode> clients = new LinkedList<>();
 
         for (int i = 1; i < 6; i++) {
             portasDisponiveis.add((56000 + i));
         }
+        try {
+            this.notifyServerIp("" + InetAddress.getLocalHost().getHostAddress());
+        } catch (UnknownHostException ex) {
+            this.notifyServerIp("Desconhecido");
+        }
+        this.notifyPortStatus("" + this.porta);
 
         while (clientCount < NUMERO_CLIENTES) {
             try {
                 server.setReuseAddress(true);
-                System.out.println("Aguardando conexao de cliente...");
+                this.notifyMessageReceived("Aguardando conexao do cliente " + (clientCount + 1) + ".");
                 conn = server.accept();
                 out = new PrintWriter(conn.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -96,11 +99,10 @@ public class Server {
                 new Thread(node).start();
                 clientCount++;
 
-                System.out.println("Conexao estabelecida." + clientCount + " clientes conectados...");
+                this.notifyMessageReceived("Conexao estabelecida na porta. " + clientCount + " clientes conectados...");
 
             } catch (IOException ex) {
-                ex.printStackTrace();
-                System.out.println("Essa porta j� est� ocupada");
+                this.notifyMessageReceived("Houve um erro na conexão com o cliente: " + ex.getMessage());
             }
         }
 
@@ -121,39 +123,71 @@ public class Server {
                 clients.get(i).write(ClientNode.TOKEN_MESSAGE + "nouse");
             }
         }
-
     }
-
-    public void increaseClientReady() {
-        this.clientsReady++;
-        if (this.clientsReady >= this.clientCount) {
-            for (int i = 0; i < clients.size(); i++) {
-                clients.get(i).write(ClientNode.LISTENER);
-            }
-        }
-    }
-
-    public void onMessageReceived(ClientNode target, String message) {
-        // @todo Exibir em interface grafica.
-        System.out.println("Escrevendo: " + message);
+    
+    public void onMessageReceived(ClientNode target, String message){
+        this.notifyMessageReceived("Recebeu e escreveu a mensagem: " + message + " de " + target.getIp() + ":" + target.getPort());
         try {
             this.fileControl.addData(message + "\n");
-        } catch (IOException ex) {
-        }
+        } catch (IOException ex) {}
         target.write(ClientNode.DONE_MESSAGE);
     }
 
     public void onReadRequest(ClientNode target) {
-        // @todo Exibir em interface grafica.
+        this.notifyMessageReceived("Recebeu requisição de leitura de " + target.getIp() + ":" + target.getPort());
         String data = this.fileControl.getAllData();
         target.write(ClientNode.DATA_MESSAGE);
         target.write(prepareSendData(data));
         target.write(ClientNode.DATA_END_MESSAGE);
         target.write(ClientNode.DONE_MESSAGE);
     }
-
-    protected String prepareSendData(String data) {
+    
+    protected String prepareSendData(String data){
         return data.replaceAll(ClientNode.DATA_MESSAGE + "|" + ClientNode.DATA_END_MESSAGE, "");
+    }
+    
+    /**
+     * Notifica os observadores do estado da porta.
+     * @param ip
+     */
+    protected void notifyServerIp(String ip){
+        SwingUtilities.invokeLater(() -> {
+            this.observers.forEach((observer) -> {
+                observer.setServerIpData(ip);
+            });
+        });
+    }
+    
+    /**
+     * Notifica os observadores do estado da porta.
+     * @param port
+     */
+    protected void notifyPortStatus(String port){
+        SwingUtilities.invokeLater(() -> {
+            this.observers.forEach((observer) -> {
+                observer.setServerPortData(port);
+            });
+        });
+    }
+    
+    /**
+     * Notifica os observadores que uma mensagem foi recebida.
+     * @param message 
+     */
+    protected void notifyMessageReceived(String message){
+        SwingUtilities.invokeLater(() -> {
+            this.observers.forEach((observer) -> {
+                observer.onMessageReceived("Mensagem: " + message);
+            });
+        });
+    }
+    
+    /**
+     * Adiciona um observador para o servidor.
+     * @param observer 
+     */
+    public void addObserver(ServerObserver observer){
+        this.observers.add(observer);
     }
 
 }

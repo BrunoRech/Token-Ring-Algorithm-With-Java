@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -59,7 +58,7 @@ public class ClientController implements Observado{
 		Socket anterior = clientServer.accept();
 		PrintWriter outNeighbor = new PrintWriter(neighbor.getOutputStream(), true);
 		BufferedReader inNeighbor = new BufferedReader(new InputStreamReader(anterior.getInputStream()));
-		outNeighbor.println("Eu sou o " + listenerPort + " , Olá vizinho " + neighborPort);
+		outNeighbor.println("Eu sou o " + listenerPort + " , Olï¿½ vizinho " + neighborPort);
 
 		while (true) {
 			String message = inNeighbor.readLine();
@@ -73,7 +72,7 @@ public class ClientController implements Observado{
 			}
 
 			if (hasToken) {
-				System.out.println("Execute sua ação");
+				System.out.println("Execute sua aï¿½ï¿½o");
 				switch (sc.nextLine()) {
 				case "1":
 					outNeighbor.println("token");
