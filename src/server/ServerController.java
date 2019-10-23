@@ -30,7 +30,7 @@ public class ServerController {
     private ServerSocket server;
     private ReadWriteControl fileControl;
     public static final int NUMERO_CLIENTES = 5;
-    public static final String CAMINHO_ARQUIVO = "src/arquivo_servidor_dsd.txt";
+    public static final String CAMINHO_ARQUIVO = "arquivo_servidor_dsd.txt";
     public static final String TOKEN = createToken();
     public static final boolean USA_TOKEN = true;
     private List<ServerObserver> observers;
@@ -80,7 +80,7 @@ public class ServerController {
             new Thread(this.fileControl).start();
             this.server = new ServerSocket(porta);
         } catch (IOException ex) {
-        ex.printStackTrace();
+            ex.printStackTrace();
         }
     }
     
@@ -124,10 +124,10 @@ public class ServerController {
 
         for (int i = 0; i < clients.size(); i++) {
             if ((i + 1) >= clients.size()) {
-                clients.get(i).write(clients.get(0).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(0));
+                clients.get(i).write(clients.get(0).getIp() + "/" + portasDisponiveis.get(0) + "/" + portasDisponiveis.get(i));
                 System.out.println(clients.get(i).getIp() + " --> "+clients.get(0).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(0));
             } else {
-                clients.get(i).write(clients.get(i + 1).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(i + 1));
+                clients.get(i).write(clients.get(i + 1).getIp() + "/" + portasDisponiveis.get(i + 1) + "/" + portasDisponiveis.get(i));
                 System.out.println(clients.get(i).getIp() + " --> "+clients.get(i+1).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(i+1));
             }
             if(USA_TOKEN){
