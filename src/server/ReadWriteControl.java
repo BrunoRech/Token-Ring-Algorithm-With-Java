@@ -49,7 +49,9 @@ public class ReadWriteControl implements Runnable {
                 }
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
+                ex.printStackTrace();
                 this.running = false;
+                break;
             }
         }
     }

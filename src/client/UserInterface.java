@@ -249,6 +249,7 @@ public class UserInterface extends JFrame implements Observador {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
         }
         UserInterface UI = new UserInterface();
         UI.setVisible(true);

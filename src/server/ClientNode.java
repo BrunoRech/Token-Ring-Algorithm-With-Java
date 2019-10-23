@@ -77,6 +77,8 @@ public class ClientNode implements Runnable {
                     ServerController.getInstance().increaseClientReady();
                 }
             } catch (IOException ex) {
+                ex.printStackTrace();
+                break;
             }
         }
     }

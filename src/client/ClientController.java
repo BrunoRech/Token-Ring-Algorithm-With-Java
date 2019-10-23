@@ -13,6 +13,7 @@ import server.ClientNode;
 
 /**
  * Controle para o cliente.
+ *
  * @author Bruno Galeazzi Rech, Jeferson Penz
  */
 public class ClientController implements Observado {
@@ -60,6 +61,7 @@ public class ClientController implements Observado {
     }
 
     public void openClientListener() throws NumberFormatException, IOException {
+
         clientServer = new ServerSocket(Integer.parseInt(listenerPort));
         serverOut.println(ClientNode.LISTENER);
     }
@@ -75,7 +77,9 @@ public class ClientController implements Observado {
             new Thread(this.messageQuery).start();
 
             beginSocketMonitor(neighborIn);
-        } catch (NumberFormatException | IOException e) {}
+        } catch (NumberFormatException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void beginSocketMonitor(BufferedReader in) {
@@ -84,7 +88,10 @@ public class ClientController implements Observado {
                 try {
                     String message = in.readLine();
                     messageQuery.onMessageReceived(message);
-                } catch (IOException ex) {}
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    break;
+                }
             }
         }).start();
     }

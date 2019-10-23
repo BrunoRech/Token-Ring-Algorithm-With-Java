@@ -73,6 +73,7 @@ public class MessageQuery implements IMessageQuery {
                 try {
                     Thread.sleep(TEMPO_ESPERA_ENVIO_TOKEN);
                 } catch (InterruptedException ex) {
+                    ex.printStackTrace();
                 }
                 if (this.messageQuery.length() > 0) {
                     String[] lines = messageQuery.toString().split("\r\n|\r|\n");
@@ -84,6 +85,7 @@ public class MessageQuery implements IMessageQuery {
                             try {
                                 Thread.sleep(TEMPO_ESPERA_VERIFICA_TOKEN);
                             } catch (InterruptedException ex) {
+                                ex.printStackTrace();
                             }
                         }
                     }
@@ -102,6 +104,8 @@ public class MessageQuery implements IMessageQuery {
             try {
                 Thread.sleep(TEMPO_ESPERA_VERIFICA_TOKEN);
             } catch (InterruptedException ex) {
+                ex.printStackTrace();
+                break;
             }
         }
     }

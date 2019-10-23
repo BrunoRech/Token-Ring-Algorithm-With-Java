@@ -141,6 +141,7 @@ public class ServerInterface extends JFrame implements ServerObserver{
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
         }
         ServerInterface UI = new ServerInterface();
         UI.setVisible(true);

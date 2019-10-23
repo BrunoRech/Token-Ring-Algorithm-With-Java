@@ -29,7 +29,7 @@ public class ServerController {
     private int clientsReady = 0;
     private ServerSocket server;
     private ReadWriteControl fileControl;
-    public static final int NUMERO_CLIENTES = 2;
+    public static final int NUMERO_CLIENTES = 5;
     public static final String CAMINHO_ARQUIVO = "src/arquivo_servidor_dsd.txt";
     public static final String TOKEN = createToken();
     public static final boolean USA_TOKEN = true;
@@ -56,7 +56,9 @@ public class ServerController {
             while(token.length() < 32 ){
                 token = "0" + token;
             }
-        } catch (NoSuchAlgorithmException ex) {}
+        } catch (NoSuchAlgorithmException ex) {
+        ex.printStackTrace();
+        }
         return token;
     }
     
@@ -77,7 +79,9 @@ public class ServerController {
             this.fileControl = new ReadWriteControl(CAMINHO_ARQUIVO);
             new Thread(this.fileControl).start();
             this.server = new ServerSocket(porta);
-        } catch (IOException ex) {}
+        } catch (IOException ex) {
+        ex.printStackTrace();
+        }
     }
     
     public void openConnection(){
@@ -93,6 +97,7 @@ public class ServerController {
             this.notifyServerIp("" + InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException ex) {
             this.notifyServerIp("Desconhecido");
+            ex.printStackTrace();
         }
         this.notifyPortStatus("" + this.porta);
 
@@ -103,6 +108,7 @@ public class ServerController {
                 conn = server.accept();
                 out = new PrintWriter(conn.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                System.out.println(conn.getLocalAddress().getHostAddress() + " " +  conn.getInetAddress().getHostAddress());
                 ClientNode node = new ClientNode(out, in, conn.getInetAddress().getHostAddress(), conn.getPort() + "");
                 clients.add(node);
                 new Thread(node).start();
@@ -112,14 +118,17 @@ public class ServerController {
 
             } catch (IOException ex) {
                 this.notifyMessageReceived("Houve um erro na conexão com o cliente: " + ex.getMessage());
+                break;
             }
         }
 
         for (int i = 0; i < clients.size(); i++) {
             if ((i + 1) >= clients.size()) {
                 clients.get(i).write(clients.get(0).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(0));
+                System.out.println(clients.get(i).getIp() + " --> "+clients.get(0).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(0));
             } else {
                 clients.get(i).write(clients.get(i + 1).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(i + 1));
+                System.out.println(clients.get(i).getIp() + " --> "+clients.get(i+1).getIp() + "/" + portasDisponiveis.get(i) + "/" + portasDisponiveis.get(i+1));
             }
             if(USA_TOKEN){
                 if ((i + 1) >= clients.size()) {
